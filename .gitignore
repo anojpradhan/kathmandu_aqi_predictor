@@ -55,6 +55,7 @@ models/*.joblib
 
 data/raw/
 data/processed/
+data/excel
 
 # ============================================================
 # Generated reports
