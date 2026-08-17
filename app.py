@@ -1,18 +1,19 @@
 import streamlit as st
 
+from scripts.aqi import calculate_aqi
 from scripts.forecasting import forecast_tomorrow
 
 # PAGE CONFIG
 
 st.set_page_config(
-    page_title="Ratnapark AQI Forecast",
+    page_title="Kathmandu AQI Forecast",
     layout="wide",
 )
 
 
 # HEADER
 
-st.title("Ratnapark Air Quality Forecast")
+st.title("Kathmandu Air Quality Forecast")
 
 st.subheader("Ratnapark Monitoring Station")
 
@@ -29,13 +30,25 @@ st.divider()
 # FORECAST BUTTON
 
 if st.button(
-    "Forecast Tomorrow",
+    " Forecast Tomorrow",
     type="primary",
     use_container_width=True,
 ):
-    with st.spinner("Downloading latest air-quality data and generating forecast..."):
+    with st.spinner("Downloading latest data and generating forecast..."):
         try:
-            result = forecast_tomorrow()
+            forecast = forecast_tomorrow()
+
+            # Calculate AQI from predictions
+            aqi_result = calculate_aqi(
+                pm25=forecast["pm2_5"],
+                pm10=forecast["pm10"],
+            )
+
+            # Combine results
+            result = {
+                **forecast,
+                **aqi_result,
+            }
 
             st.session_state["forecast"] = result
 
@@ -54,33 +67,68 @@ if "forecast" in st.session_state:
 
     st.write(f"Forecast date: **{forecast['forecast_date']}**")
 
-    col1, col2 = st.columns(2)
+    # Pollutant predictions
 
-    # PM2.5
+    col1, col2 = st.columns(2)
 
     with col1:
         st.metric(
             label="PM2.5",
-            value=f"{forecast['pm2_5']:.2f} µg/m³",
+            value=(f"{forecast['pm2_5']:.2f} µg/m³"),
         )
-
-    # PM10
 
     with col2:
         st.metric(
             label="PM10",
-            value=f"{forecast['pm10']:.2f} µg/m³",
+            value=(f"{forecast['pm10']:.2f} µg/m³"),
         )
 
     st.divider()
 
-    st.info(
-        "The forecast is generated using the latest "
-        "available Ratnapark air-quality observations."
-    )
+    # AQI
+
+    st.header("Predicted AQI")
+
+    aqi_col, category_col = st.columns(2)
+
+    with aqi_col:
+        st.metric(
+            label="AQI",
+            value=forecast["aqi"],
+        )
+
+    with category_col:
+        st.metric(
+            label="Air Quality",
+            value=forecast["category"],
+        )
+
+    # Sub-indices
+
+    st.subheader("AQI Sub-index Breakdown")
+
+    sub_col1, sub_col2 = st.columns(2)
+
+    with sub_col1:
+        st.metric(
+            label="PM2.5 Sub-index",
+            value=forecast["pm2_5_sub_index"],
+        )
+
+    with sub_col2:
+        st.metric(
+            label="PM10 Sub-index",
+            value=forecast["pm10_sub_index"],
+        )
+
+    st.write(f"**Dominant pollutant:** {forecast['dominant_pollutant']}")
+
+    st.divider()
+
+    st.info("The AQI is determined by the highest predicted pollutant sub-index.")
 
 
-# INFORMATION
+# FOOTER
 
 st.divider()
 
