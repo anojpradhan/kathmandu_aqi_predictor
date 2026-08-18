@@ -6,16 +6,16 @@ from scripts.forecasting import forecast_tomorrow
 # PAGE CONFIG
 
 st.set_page_config(
-    page_title="Kathmandu AQI Forecast",
+    page_title="Ratnapark AQI Forecast",
     layout="wide",
 )
 
 
 # HEADER
 
-st.title("Kathmandu Air Quality Forecast")
+# st.title(" Air Quality Forecast")
 
-st.subheader("Ratnapark Monitoring Station")
+st.title("Ratnapark Monitoring Station")
 
 st.write(
     "Forecast tomorrow's PM2.5 and PM10 concentrations "
