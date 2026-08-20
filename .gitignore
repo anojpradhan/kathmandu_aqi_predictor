@@ -56,4 +56,4 @@ models/*.joblib
 data/raw/
 data/processed/
 data/excel
-data/live
+data/live/ratnapark
